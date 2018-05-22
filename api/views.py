@@ -1,24 +1,17 @@
-from rest_framework import status, generics
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+from rest_framework import generics
 
-from  api.models import Project
-from api.serializers import ProjectSerializer
+from  api.models import Project, Type, Api
+from api.serializers import ProjectSerializer, TypeSerializer, ApiSerializer
 
 
-@api_view(['GET', 'POST'])
-def project_list(request):
-    if request.method == 'GET':
-        snippets = Project.objects.all()
-        serializer = ProjectSerializer(snippets, many=True)
-        return Response(serializer.data)
+class TypeList(generics.ListCreateAPIView):
+    queryset = Type.objects.all()
+    serializer_class = TypeSerializer
 
-    elif request.method == 'POST':
-        serializer = ProjectSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TypeDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Type.objects.all()
+    serializer_class = TypeSerializer
 
 
 class ProjectList(generics.ListCreateAPIView):
@@ -26,10 +19,16 @@ class ProjectList(generics.ListCreateAPIView):
     serializer_class = ProjectSerializer
 
 
-class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
+class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
-# class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Snippet.objects.all()
-#     serializer_class = SnippetSerializer
+
+class ApiList(generics.ListCreateAPIView):
+    queryset = Api.objects.all()
+    serializer_class = ApiSerializer
+
+
+class ApiDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Api.objects.all()
+    serializer_class = ApiSerializer

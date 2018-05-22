@@ -20,9 +20,13 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from api import views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    # url(r'^admin/', admin.site.urls),
+    url(r'^types/$', views.TypeList.as_view()),
+    url(r'^types/(?P<pk>[0-9]+)/$', views.TypeDetail.as_view()),
     url(r'^projects/$', views.ProjectList.as_view()),
-    url(r'^projects/(?P<pk>[0-9]+)/$', views.SnippetDetail.as_view()),
+    url(r'^projects/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view()),
+    url(r'^apis/$', views.ApiList.as_view()),
+    url(r'^apis/(?P<pk>[0-9]+)/$', views.ApiDetail.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
