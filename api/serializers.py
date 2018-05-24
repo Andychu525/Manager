@@ -1,5 +1,5 @@
 from  rest_framework import serializers
-from api.models import Project, Type, Api
+from api.models import Project, Type, Api, ApiGroup
 
 
 class TypeSerializer(serializers.ModelSerializer):
@@ -25,3 +25,13 @@ class ApiSerializer(serializers.ModelSerializer):
     class Meta:
         model = Api
         fields = '__all__'
+
+
+class ApiGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApiGroup
+        fields = '__all__'
+
+
+class ApiGroupTreeSerializer(serializers.Serializer):
+    tree = serializers.DictField()

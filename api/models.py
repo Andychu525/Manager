@@ -16,8 +16,19 @@ class Project(models.Model):
     create_time = models.DateTimeField(auto_now=True)
     update_time = models.DateTimeField(auto_now_add=True)
 
+    # def save(self, *args, **kwargs):
+    #     super(Project, self).save(*args, **kwargs)
+    #     ApiGroup(name=self.name, parent=0, level=0, project=self).save()
+
     def __str__(self):
         return self.name
+
+
+class ApiGroup(models.Model):
+    name = models.CharField(max_length=20, null=False, blank=False)
+    parent = models.ForeignKey('self', default=0)
+    level = models.IntegerField(default=0)
+    project = models.ForeignKey(Project)
 
 
 class Api(models.Model):
@@ -34,5 +45,6 @@ class Api(models.Model):
     desc = models.TextField()
     version = models.CharField(max_length=10, blank=False)
     project = models.ForeignKey(Project)
+    group = models.ForeignKey(ApiGroup)
     create_time = models.DateTimeField(auto_now=True)
     update_time = models.DateTimeField(auto_now_add=True)
