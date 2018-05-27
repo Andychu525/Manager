@@ -1,10 +1,11 @@
 from django.http import JsonResponse
-from rest_framework import generics, status
+from rest_framework import generics, status, mixins
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from  api.models import Project, Type, Api, ApiGroup
-from api.serializers import ProjectSerializer, TypeSerializer, ApiSerializer, ApiGroupSerializer
+from  api.models import Project, Type, Api, ApiGroup, Header
+from api.serializers import ProjectSerializer, TypeSerializer, ApiSerializer, ApiGroupSerializer, HeaderSerializer
 
 
 class TypeList(generics.ListCreateAPIView):
@@ -45,6 +46,20 @@ class ApiGroupList(generics.ListCreateAPIView):
 class ApiGroupDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApiGroup.objects.all()
     serializer_class = ApiGroupSerializer
+
+
+class HeaderList(generics.ListCreateAPIView):
+    queryset = Header.objects.all()
+    serializer_class = HeaderSerializer
+
+    def get_queryset(self):
+        queryset = Header.objects.all().filter(api=self.kwargs['api_id'])
+        return queryset
+
+    def perform_create(self, serializer):
+        api_id = self.kwargs['api_id']
+        serializer.validated_data['api'] = Api.objects.get(id=api_id)
+        serializer.save()
 
 
 @api_view(['GET'])

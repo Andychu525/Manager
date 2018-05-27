@@ -42,9 +42,26 @@ class Api(models.Model):
     url = models.CharField(max_length=50, null=False, blank=False)
     protocol = models.CharField(max_length=10, default='http://')
     method = models.CharField(max_length=6, choices=Method_CHOICES, null=False)
+    status = models.BooleanField()
     desc = models.TextField()
     version = models.CharField(max_length=10, blank=False)
     project = models.ForeignKey(Project)
     group = models.ForeignKey(ApiGroup)
     create_time = models.DateTimeField(auto_now=True)
     update_time = models.DateTimeField(auto_now_add=True)
+
+
+class Header(models.Model):
+    name = models.CharField(max_length=20, null=False, blank=False)
+    value = models.CharField(max_length=50)
+    api = models.ForeignKey(Api, related_name='headers', on_delete=models.CASCADE)
+
+
+class ApiParam(models.Model):
+    key = models.CharField(max_length=20, null=False, blank=False)
+    value = models.CharField(max_length=50)
+    desc = models.CharField(max_length=20)
+    type = models.IntegerField(null=False)  # 参数类型 string int ...
+    kind = models.IntegerField(null=False)  # 0：请求参数 1：url参数  2：返回参数
+    api = models.ForeignKey(Api, related_name='params', on_delete=models.CASCADE)
+    required = models.BooleanField()  # 必填or必含

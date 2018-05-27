@@ -1,5 +1,5 @@
 from  rest_framework import serializers
-from api.models import Project, Type, Api, ApiGroup
+from api.models import Project, Type, Api, ApiGroup, Header, ApiParam
 
 
 class TypeSerializer(serializers.ModelSerializer):
@@ -18,20 +18,34 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class HeaderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Header
+        fields = '__all__'
+        extra_kwargs = {'api': {'write_only': True}}
+
+
+class ApiParamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApiParam
+        fields = '__all__'
+        extra_kwargs = {'api': {'write_only': True}}
+
+
 class ApiSerializer(serializers.ModelSerializer):
+    headers = HeaderSerializer(many=True)
+    params = HeaderSerializer(many=True)
+
     create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False, read_only=True)
     update_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False, read_only=True)
 
     class Meta:
         model = Api
-        fields = '__all__'
+        fields = ('id', 'name', 'status', 'protocol', 'method', 'version', 'desc', 'group',
+                  'headers', 'params', 'update_time', 'create_time')
 
 
 class ApiGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApiGroup
         fields = '__all__'
-
-
-class ApiGroupTreeSerializer(serializers.Serializer):
-    tree = serializers.DictField()

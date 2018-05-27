@@ -27,9 +27,11 @@ urlpatterns = [
     url(r'^projects/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view()),
     url(r'^apis/$', views.ApiList.as_view()),
     url(r'^apis/(?P<pk>[0-9]+)/$', views.ApiDetail.as_view()),
+    url(r'^apis/(?P<api_id>[0-9]+)/headers/$', views.HeaderList.as_view()),
     url(r'^api/groups/$', views.ApiGroupList.as_view()),
     url(r'^api/groups/(?P<pk>[0-9]+)/$', views.ApiGroupDetail.as_view()),
     url(r'^group/tree/$', views.group_tree),
+
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
