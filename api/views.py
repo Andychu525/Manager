@@ -1,3 +1,5 @@
+import json
+
 from django.http import JsonResponse
 from rest_framework import generics, status, mixins
 from rest_framework.decorators import api_view
@@ -31,6 +33,16 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
 class ApiList(generics.ListCreateAPIView):
     queryset = Api.objects.all()
     serializer_class = ApiSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.dict()
+        data['headers'] = json.loads(data['headers'])
+        data['params'] = json.loads(data['params'])
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class ApiDetail(generics.RetrieveUpdateDestroyAPIView):

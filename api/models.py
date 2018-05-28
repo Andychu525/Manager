@@ -43,8 +43,8 @@ class Api(models.Model):
     protocol = models.CharField(max_length=10, default='http://')
     method = models.CharField(max_length=6, choices=Method_CHOICES, null=False)
     status = models.BooleanField()
-    desc = models.TextField()
-    version = models.CharField(max_length=10, blank=False)
+    desc = models.TextField(null=True, blank=True)
+    version = models.CharField(max_length=10, null=True, blank=True)
     project = models.ForeignKey(Project)
     group = models.ForeignKey(ApiGroup)
     create_time = models.DateTimeField(auto_now=True)
@@ -59,8 +59,8 @@ class Header(models.Model):
 
 class ApiParam(models.Model):
     key = models.CharField(max_length=20, null=False, blank=False)
-    value = models.CharField(max_length=50)
-    desc = models.CharField(max_length=20)
+    value = models.CharField(max_length=50, null=True, blank=True)
+    desc = models.CharField(max_length=20, null=True, blank=True)
     type = models.IntegerField(null=False)  # 参数类型 string int ...
     kind = models.IntegerField(null=False)  # 0：请求参数 1：url参数  2：返回参数
     api = models.ForeignKey(Api, related_name='params', on_delete=models.CASCADE)
