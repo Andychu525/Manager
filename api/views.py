@@ -6,8 +6,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from  api.models import Project, Type, Api, ApiGroup, Header
-from api.serializers import ProjectSerializer, TypeSerializer, ApiSerializer, ApiGroupSerializer, HeaderSerializer
+from  api.models import Project, Type, Api, ApiGroup, Header, ApiTestHistory
+from api.serializers import ProjectSerializer, TypeSerializer, ApiSerializer, ApiGroupSerializer, HeaderSerializer, ApiTestHistorySerializer
+
+from  api.core import engine
 
 
 class TypeList(generics.ListCreateAPIView):
@@ -72,6 +74,41 @@ class HeaderList(generics.ListCreateAPIView):
         api_id = self.kwargs['api_id']
         serializer.validated_data['api'] = Api.objects.get(id=api_id)
         serializer.save()
+
+
+class ApiTestHistoryList(generics.ListCreateAPIView):
+    queryset = ApiTestHistory.objects.all()
+    serializer_class = ApiTestHistorySerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.dict()
+        request_info = {}
+        request_info['method'] = data['method']
+        request_info['url'] = data['url']
+        request_info['headers'] = json.loads(data['headers'])
+        request_info['urlParams'] = json.loads(data['urlParams'])
+        request_info['bodyParams'] = json.loads(data['bodyParams'])
+        try:
+            response_info = json.dumps(engine.run(**request_info))
+        except Exception as e:
+            return Response(data=e, status=status.HTTP_201_CREATED)
+        request_info = json.dumps(request_info)
+        data = {'request_info': request_info, 'response_info': response_info, 'api': None}
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+@api_view(['POST'])
+def run_api(request):
+    if request.method == 'POST':
+        engine.run(**request.POST)
+        project = request.POST['project']
+        groups = ApiGroup.objects.filter(project=project).filter(parent=0)
+        return JsonResponse(get_group_tree(groups), safe=False)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

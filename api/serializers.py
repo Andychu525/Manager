@@ -1,5 +1,5 @@
 from  rest_framework import serializers
-from api.models import Project, Type, Api, ApiGroup, Header, ApiParam
+from api.models import Project, Type, Api, ApiGroup, Header, ApiParam, ApiTestHistory
 
 
 class TypeSerializer(serializers.ModelSerializer):
@@ -57,4 +57,13 @@ class ApiSerializer(serializers.ModelSerializer):
 class ApiGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApiGroup
+        fields = '__all__'
+
+
+class ApiTestHistorySerializer(serializers.ModelSerializer):
+    request_info = serializers.CharField()
+    response_info = serializers.CharField()
+
+    class Meta:
+        model = ApiTestHistory
         fields = '__all__'

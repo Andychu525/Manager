@@ -65,3 +65,13 @@ class ApiParam(models.Model):
     kind = models.IntegerField(null=False)  # 0：请求参数 1：url参数  2：返回参数
     api = models.ForeignKey(Api, related_name='params', on_delete=models.CASCADE)
     required = models.BooleanField()  # 必填or必含
+
+
+class ApiTestHistory(models.Model):
+    """
+    request_info:{"apiProtocol":"0","method":"GET","URL":"192.168.32.108:8002\/api\/pt\/activity\/e8%2Fme0MDpK8%3D\/1","headers":[],"requestType":0,"params":[]}
+    """
+    api = models.ForeignKey(Api, null=True, blank=True)
+    request_info = models.TextField()
+    response_info = models.TextField()
+    create_time = models.DateTimeField(auto_now=True)
