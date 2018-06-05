@@ -6,8 +6,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from  api.models import Project, Type, Api, ApiGroup, Header, ApiTestHistory
-from api.serializers import ProjectSerializer, TypeSerializer, ApiSerializer, ApiGroupSerializer, HeaderSerializer, ApiTestHistorySerializer
+from  api.models import Project, Type, Api, ApiGroup, ApiHeader, ApiTestHistory, ApiEnv
+from api.serializers import ProjectSerializer, TypeSerializer, ApiSerializer, ApiGroupSerializer, HeaderSerializer, ApiTestHistorySerializer, \
+    ApiEnvSerializer
 
 from  api.core import engine
 
@@ -37,9 +38,7 @@ class ApiList(generics.ListCreateAPIView):
     serializer_class = ApiSerializer
 
     def create(self, request, *args, **kwargs):
-        data = request.data.dict()
-        data['headers'] = json.loads(data['headers'])
-        data['params'] = json.loads(data['params'])
+        data = json.loads(request.data)
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -63,11 +62,11 @@ class ApiGroupDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class HeaderList(generics.ListCreateAPIView):
-    queryset = Header.objects.all()
+    queryset = ApiHeader.objects.all()
     serializer_class = HeaderSerializer
 
     def get_queryset(self):
-        queryset = Header.objects.all().filter(api=self.kwargs['api_id'])
+        queryset = ApiHeader.objects.all().filter(api=self.kwargs['api_id'])
         return queryset
 
     def perform_create(self, serializer):
@@ -81,24 +80,32 @@ class ApiTestHistoryList(generics.ListCreateAPIView):
     serializer_class = ApiTestHistorySerializer
 
     def create(self, request, *args, **kwargs):
-        data = request.data.dict()
-        request_info = {}
-        request_info['method'] = data['method']
-        request_info['url'] = data['url']
-        request_info['headers'] = json.loads(data['headers'])
-        request_info['urlParams'] = json.loads(data['urlParams'])
-        request_info['bodyParams'] = json.loads(data['bodyParams'])
         try:
-            response_info = json.dumps(engine.run(**request_info))
+            response_info = json.dumps(engine.run(**request.data))
         except Exception as e:
-            return Response(data=e, status=status.HTTP_201_CREATED)
-        request_info = json.dumps(request_info)
+            return Response(data=e, status=status.HTTP_400_BAD_REQUEST)
+        request_info = json.dumps(request.data)
+
         data = {'request_info': request_info, 'response_info': response_info, 'api': None}
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class ApiEnvList(generics.ListCreateAPIView):
+    queryset = ApiEnv.objects.all()
+    serializer_class = ApiEnvSerializer
+
+    def get_queryset(self):
+        queryset = ApiHeader.objects.all().filter(api=self.kwargs['project_id'])
+        return queryset
+
+    def perform_create(self, serializer):
+        project_id = self.kwargs['project_id']
+        serializer.validated_data['project_id'] = Project.objects.get(id=project_id)
+        serializer.save()
 
 
 @api_view(['POST'])

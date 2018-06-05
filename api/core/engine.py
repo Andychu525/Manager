@@ -2,8 +2,8 @@ import requests
 import json
 
 
-def run(method, url, headers=None, bodyParams=None, urlParams=None):
-    ret = requests.request(method, url, headers=headers, params=urlParams, data=bodyParams)
+def run(method, url, headers=None, body_params=None, url_params=None):
+    ret = requests.request(method, url, headers=headers, params=url_params, data=body_params)
     # http://xiaorui.cc/2016/01/25/分析requests源码解决headers无法json问题/
     return {
         'headers': eval(str(ret.headers)),

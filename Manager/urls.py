@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^types/(?P<pk>[0-9]+)/$', views.TypeDetail.as_view()),
     url(r'^projects/$', views.ProjectList.as_view()),
     url(r'^projects/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view()),
+    url(r'^projects/(?P<project_id>[0-9]+)/envs/$', views.ApiEnvList.as_view()),
     url(r'^apis/$', views.ApiList.as_view()),
     url(r'^apis/(?P<pk>[0-9]+)/$', views.ApiDetail.as_view()),
     url(r'^apis/(?P<api_id>[0-9]+)/headers/$', views.HeaderList.as_view()),

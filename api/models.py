@@ -42,7 +42,7 @@ class Api(models.Model):
     url = models.CharField(max_length=50, null=False, blank=False)
     protocol = models.CharField(max_length=10, default='http://')
     method = models.CharField(max_length=6, choices=Method_CHOICES, null=False)
-    status = models.BooleanField()
+    status = models.IntegerField()
     desc = models.TextField(null=True, blank=True)
     version = models.CharField(max_length=10, null=True, blank=True)
     project = models.ForeignKey(Project)
@@ -51,20 +51,54 @@ class Api(models.Model):
     update_time = models.DateTimeField(auto_now_add=True)
 
 
-class Header(models.Model):
-    name = models.CharField(max_length=20, null=False, blank=False)
+class ApiHeader(models.Model):
+    key = models.CharField(max_length=20, null=False, blank=False)
     value = models.CharField(max_length=50)
     api = models.ForeignKey(Api, related_name='headers', on_delete=models.CASCADE)
 
 
-class ApiParam(models.Model):
+class ApiBodyParam(models.Model):
     key = models.CharField(max_length=20, null=False, blank=False)
-    value = models.CharField(max_length=50, null=True, blank=True)
+    exam = models.CharField(max_length=50, null=True, blank=True)
+    desc = models.CharField(max_length=50, null=True, blank=True)
+    type = models.IntegerField(null=True, default=0)  # 参数类型 string int ...
+    required = models.BooleanField()
+    api = models.ForeignKey(Api, related_name='body_params', on_delete=models.CASCADE)
+
+
+class ApiUrlParam(models.Model):
+    key = models.CharField(max_length=20, null=False, blank=False)
+    exam = models.CharField(max_length=50, null=True, blank=True)
     desc = models.CharField(max_length=20, null=True, blank=True)
-    type = models.IntegerField(null=False)  # 参数类型 string int ...
-    kind = models.IntegerField(null=False)  # 0：请求参数 1：url参数  2：返回参数
-    api = models.ForeignKey(Api, related_name='params', on_delete=models.CASCADE)
-    required = models.BooleanField()  # 必填or必含
+    required = models.BooleanField()
+    api = models.ForeignKey(Api, related_name='url_params', on_delete=models.CASCADE)
+
+
+class ApiResponseParam(models.Model):
+    key = models.CharField(max_length=20, null=False, blank=False)
+    desc = models.CharField(max_length=50, null=True, blank=True)
+    type = models.IntegerField(null=True, default=0)
+    required = models.BooleanField()
+    api = models.ForeignKey(Api, related_name='response_params', on_delete=models.CASCADE)
+
+
+class ApiEnv(models.Model):
+    name = models.CharField(max_length=20, null=False, blank=False)
+    desc = models.CharField(max_length=50, null=True, blank=True)
+    prefix_url = models.CharField(max_length=20, null=True, blank=True)
+    project = models.ForeignKey(Project)
+
+
+class ApiEnvHeader(models.Model):
+    key = models.CharField(max_length=20, null=False, blank=False)
+    value = models.CharField(max_length=50)
+    env = models.ForeignKey(ApiEnv, related_name='env_headers', on_delete=models.CASCADE)
+
+
+class ApiEnvParam(models.Model):
+    key = models.CharField(max_length=20, null=False, blank=False)
+    value = models.CharField(max_length=50)
+    env = models.ForeignKey(ApiEnv, related_name='env_params', on_delete=models.CASCADE)
 
 
 class ApiTestHistory(models.Model):
